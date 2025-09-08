@@ -7,7 +7,7 @@ Un CMS moderno y potente para crear y gestionar sitios web estáticos con planti
 - ✅ **Editor de contenido visual** con TinyMCE
 - ✅ **Gestión de páginas** (crear, editar, eliminar)
 - ✅ **Sistema de plantillas** con Handlebars
-- ✅ **Secciones dinámicas** - 12+ tipos de secciones predefinidas
+- ✅ **Secciones dinámicas** - 14+ tipos de secciones predefinidas
 - ✅ **Constructor visual** - Arrastra y suelta secciones
 - ✅ **Navegación dinámica** configurable
 - ✅ **Exportación de sitio estático** completo
@@ -47,8 +47,6 @@ npm start
 ```
 http://localhost:3000/admin
 ```
-taskkill /F /IM node.exe
-node server.js
 
 ## 📖 Uso
 
@@ -61,6 +59,16 @@ El panel de administración te permite:
    - Navegación (agregar/eliminar enlaces)
    - Footer
    - Meta tags SEO
+   - **Restablecer tema**: el botón “Restablecer” de Configuración restablece los colores del tema a valores por defecto y los guarda automáticamente.
+   - Inicialización del Admin al cargar el DOM (para asegurar que se carguen datos y eventos):
+     ```javascript
+     // Initialize CMS Admin when DOM is loaded
+     if (!window.cmsAdmin) {
+       document.addEventListener('DOMContentLoaded', () => {
+         window.cmsAdmin = new CMSAdmin();
+       });
+     }
+     ```
 
 2. **Gestionar páginas**:
    - Crear páginas con contenido estático
@@ -69,7 +77,7 @@ El panel de administración te permite:
    - Configurar meta tags por página
 
 3. **Constructor de secciones dinámicas**:
-   - **12+ tipos de secciones** predefinidas
+   - **14+ tipos de secciones** predefinidas
    - **Arrastra y suelta** para reordenar
    - **Editor visual** para cada sección
    - **Vista previa en tiempo real**
@@ -90,7 +98,9 @@ El panel de administración te permite:
 #### 📊 **Secciones de Contenido**
 - **Stats** - Estadísticas con contadores animados e iconos
 - **Services** - Servicios con iconos, títulos y descripciones
-- **Features** - Características del producto/servicio con iconos
+- **Features Overview** - Características principales con logros y tarjetas de funcionalidades
+- **Additional Features** - Características adicionales con tarjetas de estado
+- **Features Alt** - Características con pestañas interactivas
 - **Text** - Secciones de texto puro con formato rico
 - **Image + Text** - Combinación de imagen y texto en columnas
 
@@ -98,10 +108,14 @@ El panel de administración te permite:
 - **Portfolio** - Galería de trabajos con filtros por categoría
 - **Gallery** - Galería de imágenes con lightbox
 - **Testimonials** - Testimonios de clientes con sistema de calificación
+- **Clients** - Logos de clientes con nombre, URL y texto alternativo
 
 #### 👥 **Secciones Sociales**
 - **Team** - Equipo con fotos, nombres, cargos y redes sociales
 - **Contact** - Información de contacto con mapa y formulario
+- **Newsletter** - Captura de emails con título, subtítulo, placeholder, botón, texto legal y acción del formulario
+
+Nota: El botón “Restablecer” en Configuración vuelve a los colores por defecto (accent, background, heading, default) y guarda automáticamente en la configuración del sitio.
 
 ### Cómo Usar las Secciones Dinámicas
 
@@ -118,6 +132,7 @@ El panel de administración te permite:
 #### Configuración del Sitio
 - `GET /api/site` - Obtener configuración del sitio
 - `PUT /api/site` - Actualizar configuración del sitio
+- `POST /api/export` - Exportar sitio (también disponible como sección Exportar en el admin)
 
 #### Gestión de Páginas
 - `GET /api/pages` - Listar todas las páginas
@@ -156,15 +171,21 @@ El CMS utiliza **Handlebars** como motor de plantillas con una arquitectura modu
 - `section-about.hbs` - Sección acerca de
 - `section-stats.hbs` - Sección de estadísticas
 - `section-services.hbs` - Sección de servicios
-- `section-features.hbs` - Sección de características
+- `section-features-overview.hbs` - Sección de características principales
+- `section-additional-features.hbs` - Sección de características adicionales
+- `section-features-alt.hbs` - Sección de características con pestañas
 - `section-portfolio.hbs` - Sección de portafolio
 - `section-team.hbs` - Sección de equipo
 - `section-contact.hbs` - Sección de contacto
 - `section-cta.hbs` - Sección call-to-action
+- `section-pricing.hbs` - Sección de precios
+- `section-faq.hbs` - Sección de preguntas frecuentes
 - `section-text.hbs` - Sección de texto
 - `section-image-text.hbs` - Sección imagen + texto
 - `section-testimonials.hbs` - Sección de testimonios
 - `section-gallery.hbs` - Sección de galería
+- `section-clients.hbs` - Sección de clientes
+- `section-newsletter.hbs` - Sección de newsletter
 
 ### Crear Nuevas Secciones
 
@@ -261,6 +282,10 @@ mycms/
 │   │   ├── js/           # Scripts de la plantilla
 │   │   ├── img/          # Imágenes de la plantilla
 │   │   └── vendor/       # Librerías externas
+│   ├── admin/             # Panel de administración (servido en /admin)
+│   │   ├── index.html     # Interfaz principal del admin
+│   │   ├── admin.js       # Lógica del panel de administración
+│   │   └── admin.css      # Estilos del admin
 │   └── css/              # Estilos personalizados
 │       └── site.css      # Estilos del CMS
 ├── scripts/               # Scripts de utilidad
@@ -281,11 +306,15 @@ mycms/
 │   │       ├── section-about.hbs    # Sección acerca de
 │   │       ├── section-stats.hbs    # Sección estadísticas
 │   │       ├── section-services.hbs # Sección servicios
-│   │       ├── section-features.hbs # Sección características
+│   │       ├── section-features-overview.hbs # Características principales
+│   │       ├── section-additional-features.hbs # Características adicionales
+│   │       ├── section-features-alt.hbs # Características con pestañas
 │   │       ├── section-portfolio.hbs# Sección portafolio
 │   │       ├── section-team.hbs     # Sección equipo
 │   │       ├── section-contact.hbs  # Sección contacto
 │   │       ├── section-cta.hbs      # Sección CTA
+│   │       ├── section-pricing.hbs  # Sección precios
+│   │       ├── section-faq.hbs      # Preguntas frecuentes
 │   │       ├── section-text.hbs     # Sección texto
 │   │       ├── section-image-text.hbs # Sección imagen+texto
 │   │       ├── section-testimonials.hbs # Testimonios
@@ -417,6 +446,63 @@ Cada tipo de sección tiene su propia estructura de datos. Ejemplos:
 }
 ```
 
+#### Sección Features Overview
+```json
+{
+  "type": "features-overview",
+  "data": {
+    "subtitle": "Características Avanzadas",
+    "title": "Soluciones Integrales",
+    "description": "Descubre todas las características que ofrecemos",
+    "mainTitle": "Marco de Trabajo Integrado",
+    "paragraphs": [
+      "Aprovechando tecnología de vanguardia proporcionamos la base para la excelencia operacional.",
+      "Nuestra arquitectura robusta integra sistemas diversos, optimizando flujos de trabajo."
+    ],
+    "achievements": [
+      {
+        "icon": "bi-shield-check",
+        "value": "99%",
+        "label": "Uptime Garantizado"
+      }
+    ],
+    "features": [
+      [
+        {
+          "icon": "bi-shield-lock",
+          "title": "Seguridad Avanzada",
+          "description": "Protege tu sitio web con las últimas tecnologías de seguridad.",
+          "status": "active",
+          "statusText": "Activo",
+          "primary": true,
+          "delay": "200"
+        }
+      ]
+    ]
+  }
+}
+```
+
+#### Sección Additional Features
+```json
+{
+  "type": "additional-features",
+  "data": {
+    "features": [
+      {
+        "icon": "bi-palette",
+        "title": "Diseño Personalizado",
+        "description": "Creamos diseños únicos que reflejan la identidad de tu marca.",
+        "status": "active",
+        "statusIcon": "bi-check-circle",
+        "statusText": "Disponible",
+        "delay": "200"
+      }
+    ]
+  }
+}
+```
+
 ## 🐛 Solución de Problemas
 
 ### El servidor no inicia
@@ -495,6 +581,40 @@ Este proyecto es de código abierto. Puedes usarlo y modificarlo libremente.
 - ✅ **Validación** de datos de entrada
 - ✅ **Protección CSRF** en formularios
 - ✅ **Headers de seguridad** configurados
+
+## 🆕 Nuevas Características Implementadas
+
+### Secciones de Características Avanzadas
+
+Se han implementado dos nuevas secciones especializadas para mostrar características y funcionalidades:
+
+#### 🎯 **Features Overview**
+- **Diseño dual**: Combina contenido textual con tarjetas de características
+- **Badges de logros**: Muestra métricas importantes con iconos
+- **Estados de funcionalidades**: Indica el estado de cada característica (activo, pendiente, programado)
+- **Animaciones AOS**: Efectos de aparición suaves y escalonados
+- **Layout responsivo**: Se adapta perfectamente a todos los dispositivos
+
+#### 🔧 **Additional Features**
+- **Tarjetas de características**: Diseño limpio con iconos, títulos y descripciones
+- **Sistema de estados**: Tags de estado con colores diferenciados
+- **Grid responsivo**: Layout de 3 columnas que se adapta a móviles
+- **Efectos hover**: Animaciones suaves al pasar el cursor
+- **Iconografía Bootstrap**: Amplia gama de iconos disponibles
+
+### Mejoras en el Sistema
+
+#### ✨ **Integración Completa**
+- Las nuevas secciones se integran automáticamente en el panel de administración
+- Soporte completo para exportación de sitios estáticos
+- Compatibilidad con el sistema de plantillas Handlebars existente
+- Estilos CSS optimizados que respetan el diseño original
+
+#### 🎨 **Personalización Avanzada**
+- Configuración flexible de contenido a través del admin
+- Soporte para múltiples estados de características
+- Personalización de iconos, colores y textos
+- Animaciones configurables con delays personalizados
 
 ## 🤝 Contribuir
 
